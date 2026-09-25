@@ -97,7 +97,7 @@ mActiveModeId=1
 mActiveRenderFrameRate=120.00001
 ```
 
-Both choices were verified on the test OPD2515 with Punktfunk in the foreground.
+Both choices were verified on the test OPD2515 with a previously non-whitelisted application in the foreground.
 
 ## Rollback
 
