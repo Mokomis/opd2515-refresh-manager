@@ -1,0 +1,11 @@
+id=dev.opd2515.refreshmanager
+name=OPD2515 Refresh Manager
+version=v1.0
+versionCode=1
+author=OPD2515 community test
+description=Per-app Default, 120 Hz, and 144 Hz control for the OPPO Pad Mini on ColorOS 16.
+minApiVersion=102
+targetApiVersion=102
+staticScope=true
+autoHotReload=false
+exceptionMode=protective
