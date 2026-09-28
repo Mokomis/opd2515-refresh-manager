@@ -169,6 +169,10 @@ The published release APK is signed separately. Private signing keys are not inc
 
 The package-list permission is used only to populate the local app selector. The APK requests no network permission and contains no analytics, advertising, or telemetry. Vector scope is statically limited to Android's system process.
 
+## License
+
+Copyright 2026 Mokomis. Licensed under the [Apache License 2.0](LICENSE), a permissive open-source license that allows use, modification, and redistribution while preserving its notices and patent terms.
+
 ## v1.0 release integrity
 
 ```text
