@@ -2,6 +2,8 @@
 
 Per-app **Default (Adaptive) / 60 Hz / 120 Hz / 144 Hz** display control for the rooted OPPO Pad Mini (OPD2515) on ColorOS 16.
 
+Most apps are excluded from ColorOS's built-in 144 Hz package allowlist and are therefore capped at 120 Hz. Refresh Manager lets the user select **any launchable app** and give it the same 144 Hz policy ID reserved for allowlisted apps. The stock whitelist is not edited; the systemless hook overrides the policy decision only for apps the user selects.
+
 ## What this is
 
 The OPPO Pad Mini has a real 144 Hz display mode, but ColorOS normally limits most applications to 120 Hz. The stock firmware contains a curated package list whose approved apps may use display mode ID 4 (144 Hz). Apps outside that list can request 144 Hz and briefly reach it, but ColorOS revises the request to mode ID 3 (120 Hz).
@@ -11,7 +13,7 @@ This project supplies an on-device manager and a systemless Vector/libxposed hoo
 - **Default (Adaptive):** use the normal ColorOS refresh policy, which may switch among supported rates.
 - **60 Hz:** lock the app to the existing 60 Hz display policy.
 - **120 Hz:** select the existing 120 Hz display policy for that app.
-- **144 Hz:** select the existing physical 144 Hz mode for that app.
+- **144 Hz:** bypass the stock package allowlist for the selected app and assign the existing 144 Hz policy/mode.
 
 It does not overclock the panel, replace the kernel, edit the firmware XML, or modify `/my_product` or any other system partition.
 
@@ -51,6 +53,8 @@ ColorOS calls this method while revising its preferred refresh mode for the acti
 - Stored value `3`: return the ColorOS 120 Hz policy ID.
 - Stored value `4`: return the 144 Hz policy ID.
 - No override: call the original ColorOS method unchanged.
+
+This means the 144 Hz option is not limited to packages on OPPO's original list. Any launchable app shown by Refresh Manager can be selected. When that app becomes active, the hook returns rate ID `4` before ColorOS can revise it back to the normal 120 Hz ceiling.
 
 The manager stores each rule in a persistent Android property named `persist.opdrr.<package-hash>` and asks the Oplus screen-mode service to reevaluate the app immediately. KernelSU root is required to write the property and call that service. The hook itself is supplied systemlessly by Vector.
 
