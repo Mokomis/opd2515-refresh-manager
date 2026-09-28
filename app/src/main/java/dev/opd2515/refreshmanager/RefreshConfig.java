@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 package dev.opd2515.refreshmanager;
 
 final class RefreshConfig {
