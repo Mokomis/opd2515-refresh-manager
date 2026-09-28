@@ -37,8 +37,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class MainActivity extends Activity {
-    private static final String[] MODES = {"Default", "120 Hz", "144 Hz"};
-    private static final int[] RATE_IDS = {0, 3, 4};
+    private static final String[] MODES = {"Default (Adaptive)", "60 Hz", "120 Hz", "144 Hz"};
+    private static final int[] RATE_IDS = {0, 2, 3, 4};
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final List<AppEntry> allApps = new ArrayList<>();
     private final List<AppEntry> shownApps = new ArrayList<>();
@@ -64,7 +64,7 @@ public final class MainActivity extends Activity {
         root.addView(title);
 
         TextView subtitle = new TextView(this);
-        subtitle.setText("Choose the maximum display mode for each app. Changes apply immediately.");
+        subtitle.setText("Use ColorOS adaptive behavior or lock a fixed rate for each app.");
         subtitle.setTextSize(14);
         subtitle.setTextColor(Color.rgb(88, 94, 108));
         subtitle.setPadding(0, 0, 0, dp(12));
@@ -193,7 +193,7 @@ public final class MainActivity extends Activity {
             row.packageName.setText(app.packageName);
             row.spinner.setOnItemSelectedListener(null);
             int rate = preferences.getInt(app.packageName, 0);
-            row.spinner.setSelection(rate == 4 ? 2 : rate == 3 ? 1 : 0, false);
+            row.spinner.setSelection(rate == 4 ? 3 : rate == 3 ? 2 : rate == 2 ? 1 : 0, false);
             row.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 public void onItemSelected(AdapterView<?> parent, View view, int selected, long id) {
                     int current = preferences.getInt(app.packageName, 0);
@@ -254,4 +254,3 @@ public final class MainActivity extends Activity {
         }
     }
 }
-

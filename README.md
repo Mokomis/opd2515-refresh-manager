@@ -1,14 +1,15 @@
 # OPD2515 Refresh Manager
 
-Per-app **Default / 120 Hz / 144 Hz** display control for the rooted OPPO Pad Mini (OPD2515) on ColorOS 16.
+Per-app **Default (Adaptive) / 60 Hz / 120 Hz / 144 Hz** display control for the rooted OPPO Pad Mini (OPD2515) on ColorOS 16.
 
 ## What this is
 
 The OPPO Pad Mini has a real 144 Hz display mode, but ColorOS normally limits most applications to 120 Hz. The stock firmware contains a curated package list whose approved apps may use display mode ID 4 (144 Hz). Apps outside that list can request 144 Hz and briefly reach it, but ColorOS revises the request to mode ID 3 (120 Hz).
 
-This project supplies an on-device manager and a systemless Vector/libxposed hook. It offers three policies for each launchable app:
+This project supplies an on-device manager and a systemless Vector/libxposed hook. It offers four policies for each launchable app:
 
-- **Default:** use the normal ColorOS refresh policy.
+- **Default (Adaptive):** use the normal ColorOS refresh policy, which may switch among supported rates.
+- **60 Hz:** lock the app to the existing 60 Hz display policy.
 - **120 Hz:** select the existing 120 Hz display policy for that app.
 - **144 Hz:** select the existing physical 144 Hz mode for that app.
 
@@ -33,7 +34,7 @@ The physical modes reported by `dumpsys display` on the tested tablet are:
 | 3 | 90.0 Hz |
 | 4 | 144.00002 Hz |
 
-The separate ColorOS application-policy mapping uses rate ID 3 for 120 Hz and rate ID 4 for 144 Hz. This project is based on that exact observed firmware behavior. Do not assume compatibility with another device or firmware revision.
+The stock ColorOS configuration explicitly maps application-policy rate ID 2 to 60 Hz and rate ID 3 to 120 Hz. The firmware's 144 Hz policy uses rate ID 4. This project is based on that exact observed firmware behavior. Do not assume compatibility with another device or firmware revision.
 
 ## How it works
 
@@ -46,13 +47,14 @@ com.android.server.wm.OplusRefreshRatePolicyImpl$PickRefreshRateData
 
 ColorOS calls this method while revising its preferred refresh mode for the active window. The hook extracts the package name from the supplied policy reason and checks that package's saved override:
 
+- Stored value `2`: return the ColorOS 60 Hz policy ID.
 - Stored value `3`: return the ColorOS 120 Hz policy ID.
 - Stored value `4`: return the 144 Hz policy ID.
 - No override: call the original ColorOS method unchanged.
 
 The manager stores each rule in a persistent Android property named `persist.opdrr.<package-hash>` and asks the Oplus screen-mode service to reevaluate the app immediately. KernelSU root is required to write the property and call that service. The hook itself is supplied systemlessly by Vector.
 
-Package-name hashes keep property names short. A Java `String.hashCode()` collision is theoretically possible, although unlikely; v1.0 does not include collision handling.
+Package-name hashes keep property names short. A Java `String.hashCode()` collision is theoretically possible, although unlikely; v1.1.0 does not include collision handling.
 
 ## Installation
 
@@ -71,7 +73,7 @@ Installation:
 4. Reboot once.
 5. Open Refresh Manager and allow ColorOS's **Read your app list** permission.
 6. Open **KernelSU → Superuser → OPD2515 Refresh Manager** and enable **Superuser**.
-7. Search for an app and select **Default**, **120 Hz**, or **144 Hz**.
+7. Search for an app and select **Default (Adaptive)**, **60 Hz**, **120 Hz**, or **144 Hz**.
 
 Selections apply immediately and persist across reboots.
 
@@ -81,6 +83,13 @@ Keep the selected app in the foreground and run:
 
 ```bash
 adb shell dumpsys display | grep -E 'mActiveModeId|mActiveRenderFrameRate'
+```
+
+For 60 Hz, expect:
+
+```text
+mActiveModeId=2
+mActiveRenderFrameRate=60.000004
 ```
 
 For 144 Hz, expect:
@@ -97,7 +106,7 @@ mActiveModeId=1
 mActiveRenderFrameRate=120.00001
 ```
 
-Both choices were verified on the test OPD2515 with a previously non-whitelisted application in the foreground.
+The 120 Hz and 144 Hz choices were verified on the test OPD2515 with a previously non-whitelisted application in the foreground. The 60 Hz policy ID is explicitly defined by the tablet's stock ColorOS configuration, and the v1.1.0 UI/property path has been verified on-device. A reboot is required before Vector loads the updated hook that honors the new value, so the final live 60 Hz lock remains to be confirmed after that reboot.
 
 ## Rollback
 
@@ -115,7 +124,7 @@ If a boot problem occurs, use Vector/KernelSU safe mode to disable the module an
 - 144 Hz consumes more display power and may increase heat.
 - Thermal, hardware, or emergency power protections elsewhere in the firmware may still take precedence.
 - A 144 Hz panel mode does not make an app render 144 unique frames per second. App rendering, streaming settings, decoding, and network performance are separate limits.
-- Selecting 144 Hz in v1.0 holds the selected display policy at 144 Hz. It is not an adaptive “up to 144 Hz” mode.
+- Selecting a fixed rate in v1.1.0 holds the selected display policy at that rate. Only **Default (Adaptive)** delegates rate selection to ColorOS.
 - Root and system-process hooks carry risk. Keep a known-good way to disable Vector modules.
 
 ## Building
@@ -154,4 +163,10 @@ The package-list permission is used only to populate the local app selector. The
 
 ```text
 SHA-256: 3efc24aeba83d2809c0172d5dae2bc2f3f67973f0621d17f8968e44e796049b4
+```
+
+## v1.1.0 release integrity
+
+```text
+SHA-256: 5f8a66791483a9d481347f4bd4ca19ee0d980ef5de820c32e828eb7a22ba6191
 ```
