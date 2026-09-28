@@ -108,6 +108,12 @@ mActiveRenderFrameRate=120.00001
 
 The 120 Hz and 144 Hz choices were verified on the test OPD2515 with a previously non-whitelisted application in the foreground. The 60 Hz policy ID is explicitly defined by the tablet's stock ColorOS configuration, and the v1.1.0 UI/property path has been verified on-device. A reboot is required before Vector loads the updated hook that honors the new value, so the final live 60 Hz lock remains to be confirmed after that reboot.
 
+## Gaming frame-pacing note
+
+The manager controls the **display refresh rate**, not a game's rendering frame rate. For games that offer a stable 40 FPS cap, select **120 Hz** in Refresh Manager and select **40 FPS** inside the game. At 120 Hz, every 40 FPS game frame is displayed for exactly three panel refreshes (`120 / 40 = 3`), providing even frame pacing without requiring VRR.
+
+Do not interpret this as a 40 Hz display mode: the OPD2515 exposes only fixed 60, 90, 120, and 144 Hz modes, and Android reports no true adaptive-refresh-rate support. If the game cannot maintain its 40 FPS cap, frame-time fluctuations can still be visible. A 48 FPS cap similarly pairs evenly with 144 Hz (`144 / 48 = 3`).
+
 ## Rollback
 
 1. Disable **OPD2515 Refresh Manager** in Vector.
