@@ -34,7 +34,9 @@ public final class ModuleEntry extends XposedModule {
                     .setExceptionMode(XposedInterface.ExceptionMode.PROTECTIVE)
                     .intercept(chain -> {
                         int configuredMode = configuredMode((String) chain.getArg(2));
-                        if (configuredMode == 3 || configuredMode == 4) return configuredMode;
+                        if (configuredMode == 2 || configuredMode == 3 || configuredMode == 4) {
+                            return configuredMode;
+                        }
                         return chain.proceed();
                     });
             installed = true;
@@ -51,7 +53,7 @@ public final class ModuleEntry extends XposedModule {
             try {
                 int mode = (Integer) getIntProperty.invoke(
                         null, RefreshConfig.propertyFor(matcher.group(1)), 0);
-                if (mode == 3 || mode == 4) return mode;
+                if (mode == 2 || mode == 3 || mode == 4) return mode;
             } catch (Throwable ignored) {
                 return 0;
             }
