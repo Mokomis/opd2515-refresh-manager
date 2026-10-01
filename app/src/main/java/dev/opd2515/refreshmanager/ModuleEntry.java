@@ -19,14 +19,28 @@ public final class ModuleEntry extends XposedModule {
     private Method getIntProperty;
 
     @Override
-    public synchronized void onSystemServerStarting(SystemServerStartingParam param) {
+    public void onModuleLoaded(ModuleLoadedParam param) {
+        Log.i(TAG, "Module loaded: system=" + param.isSystemServer() + " process=" + param.getProcessName());
+        if (!param.isSystemServer()) return;
+        // Some Vector boot paths load modules after the system-server lifecycle event.
+        // The process context loader is the existing services loader, not a new copy.
+        installHook(Thread.currentThread().getContextClassLoader());
+    }
+
+    @Override
+    public void onSystemServerStarting(SystemServerStartingParam param) {
+        installHook(param.getClassLoader());
+    }
+
+    private synchronized void installHook(ClassLoader loader) {
+        Log.i(TAG, "Hook setup: loader=" + loader + " installed=" + installed);
         if (installed) return;
         try {
             Class<?> systemProperties = Class.forName("android.os.SystemProperties");
             getIntProperty = systemProperties.getDeclaredMethod("getInt", String.class, int.class);
             getIntProperty.setAccessible(true);
 
-            Class<?> policy = Class.forName(POLICY_CLASS, false, param.getClassLoader());
+            Class<?> policy = Class.forName(POLICY_CLASS, false, loader);
             Method revise = policy.getDeclaredMethod(
                     "reviseWinPreferredIdIfNeeded", int.class, int.class, String.class);
             revise.setAccessible(true);
@@ -40,10 +54,24 @@ public final class ModuleEntry extends XposedModule {
                         }
                         return chain.proceed();
                     });
+            Method candidatePackage = policy.getDeclaredMethod("candidateWinPkgName");
+            candidatePackage.setAccessible(true);
+            Method pick = policy.getDeclaredMethod("getPickPreferredId");
+            pick.setAccessible(true);
+            hook(pick)
+                    .setPriority(XposedInterface.PRIORITY_HIGHEST)
+                    .setExceptionMode(XposedInterface.ExceptionMode.PROTECTIVE)
+                    .intercept(chain -> {
+                        Object original = chain.proceed();
+                        String packageName = (String) candidatePackage.invoke(chain.getThisObject());
+                        int mode = configuredMode(packageName);
+                        if (mode == 2 || mode == 3 || mode == 4) return mode;
+                        return original;
+                    });
             installed = true;
-            log(Log.INFO, TAG, "Per-app refresh policy hook installed");
+            Log.i(TAG, "Per-app refresh policy hook installed");
         } catch (Throwable t) {
-            log(Log.ERROR, TAG, "Unable to install refresh policy hook", t);
+            Log.e(TAG, "Unable to install refresh policy hook", t);
         }
     }
 

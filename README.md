@@ -40,7 +40,11 @@ The stock ColorOS configuration explicitly maps application-policy rate ID 2 to 
 
 ## How it works
 
-Vector loads the module only in Android's `system_server`. The module hooks:
+Vector loads the module only in Android's `system_server`. Hook installation runs both when the module loads and on the system-server startup callback, with a guard against duplicate installation.
+
+The final override hooks `PickRefreshRateData.getPickPreferredId()`. It runs the stock selection first, reads the selected window's package through `candidateWinPkgName()`, and applies that package's saved policy. Unconfigured packages retain the stock result. Intercepting only the earlier revision helper did not cover the final refresh selection on the tested firmware.
+
+The module also retains its earlier revision-helper hook:
 
 ```text
 com.android.server.wm.OplusRefreshRatePolicyImpl$PickRefreshRateData
@@ -60,6 +64,10 @@ The manager stores each rule in a persistent Android property named `persist.opd
 
 Package-name hashes keep property names short. A Java `String.hashCode()` collision is theoretically possible, although unlikely; v1.1.0 does not include collision handling.
 
+## v1.1.1 refresh override repair
+
+See [v1.1.1 release notes](RELEASE_NOTES_v1.1.1.md) for the boot-loading and final refresh-selection failures, the fix, and measured verification. Update the APK and reboot; saved selections are preserved.
+
 ## Installation
 
 Prerequisites:
@@ -71,7 +79,7 @@ Prerequisites:
 
 Installation:
 
-1. Download and install the APK from the latest GitHub Release.
+1. Download and install the APK from the latest GitHub Release. When using adb, install with `adb install --no-incremental -r app.apk`; incremental APK mounts may become available only after Vector tries to load the system-process module.
 2. Open Vector and enable **OPD2515 Refresh Manager**.
 3. Scope it only to **System Framework** (`system`).
 4. Reboot once.
@@ -183,4 +191,10 @@ SHA-256: 3efc24aeba83d2809c0172d5dae2bc2f3f67973f0621d17f8968e44e796049b4
 
 ```text
 SHA-256: 5f8a66791483a9d481347f4bd4ca19ee0d980ef5de820c32e828eb7a22ba6191
+```
+
+## v1.1.1 release integrity
+
+```text
+SHA-256: daca5df0c4d34a2fc795254022272f937b8940a98055e211a03b2f0668f0de8a
 ```

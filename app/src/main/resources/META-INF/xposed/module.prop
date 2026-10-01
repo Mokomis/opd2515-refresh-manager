@@ -1,7 +1,7 @@
 id=dev.opd2515.refreshmanager
 name=OPD2515 Refresh Manager
-version=v1.1.0
-versionCode=2
+version=v1.1.1
+versionCode=3
 author=OPD2515 community test
 description=Per-app adaptive, 60 Hz, 120 Hz, and 144 Hz control for the OPPO Pad Mini on ColorOS 16.
 minApiVersion=102
