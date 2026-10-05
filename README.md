@@ -177,6 +177,14 @@ The published release APK is signed separately. Private signing keys are not inc
 
 The package-list permission is used only to populate the local app selector. The APK requests no network permission and contains no analytics, advertising, or telemetry. Vector scope is statically limited to Android's system process.
 
+## Other tools for this tablet
+
+Separate root utilities for the OPPO Pad Mini OPD2515. Each works by itself.
+
+- [Wi-Fi 7 Toggle](https://github.com/Mokomis/WiFi-7-Toggle): enables or restores the tablet's 6 GHz / Wi-Fi 7 band capability.
+- [GPU Clock Floor](https://github.com/Mokomis/adreno-clock-floor): holds the Adreno GPU clock at a chosen minimum, for steadier GPU work such as video decode while streaming.
+- [Low-latency audio](https://github.com/Mokomis/opd2515-low-latency-audio): documents how ColorOS keeps apps off the low-latency audio paths, with a script to allow chosen apps.
+
 ## License
 
 Copyright 2026 Mokomis. Licensed under the [GNU General Public License v3.0](LICENSE). You may use, study, modify, and redistribute the software; distributors of modified versions must provide the corresponding source under GPLv3. Release APKs link to the complete source for their tagged version in this repository.
