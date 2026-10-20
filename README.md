@@ -1,5 +1,10 @@
 # OPD2515 Refresh Manager
 
+> [!IMPORTANT]
+> **Deprecated, no longer updated.** Refresh Manager is now part of **[Ember](https://github.com/Mokomis/ember)**, one app for the OPPO Pad Mini that combines it with the other fixes for this tablet, with a setup checklist and shared safety checks. This repository is archived (read-only) and stays online for reference.
+>
+> To switch: in Vector, turn off **OPD2515 Refresh Manager**, turn on **Ember** for **System Framework** only, then reboot. Ember reads the same per-app settings, so your choices carry over. Never run both hooks at the same time.
+
 Per-app **Default (Adaptive) / 60 Hz / 120 Hz / 144 Hz** display control for the rooted OPPO Pad Mini (OPD2515) on ColorOS 16.
 
 Most apps are excluded from ColorOS's built-in 144 Hz package allowlist and are therefore capped at 120 Hz. Refresh Manager lets the user select **any launchable app** and give it the same 144 Hz policy ID reserved for allowlisted apps. The stock whitelist is not edited; the systemless hook overrides the policy decision only for apps the user selects.
